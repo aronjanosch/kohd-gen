@@ -117,7 +117,15 @@ export function composeSentence(plan: SentencePlan): SentenceGeometry {
     eat(add(w.geom.bbox.min, w.offset));
     eat(add(w.geom.bbox.max, w.offset));
   }
-  for (const s of symbols) eat(s.at, 48);
+  for (const s of symbols) {
+    if (s.kind === 'coupler') {
+      // Tall bar stack: ~24 bars at 11 step, widths up to ~70 left of the attach edge.
+      eat(add(s.at, v(-72, -135)));
+      eat(add(s.at, v(4, 135)));
+    } else {
+      eat(s.at, 48);
+    }
+  }
   for (const conn of connectors) for (const p of conn.path.pts) eat(p, 4);
   return { words, symbols, connectors, bbox: { min: v(minX, minY), max: v(maxX, maxY) } };
 }

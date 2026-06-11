@@ -17,8 +17,8 @@ export function sentenceGroup(s: SentenceGeometry): SvgNode {
     children.push(el('path', { d: pathD(conn.path), fill: 'none' }));
     for (const bar of conn.bars) {
       const p = perp(bar.dir);
-      const a = add(bar.at, scale(p, 8));
-      const b = add(bar.at, scale(p, -8));
+      const a = add(bar.at, scale(p, 13));
+      const b = add(bar.at, scale(p, -13));
       children.push(el('line', { x1: fmt(a.x), y1: fmt(a.y), x2: fmt(b.x), y2: fmt(b.y) }));
     }
     if (conn.comma) {

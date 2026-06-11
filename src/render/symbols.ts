@@ -18,51 +18,50 @@ const polyline = (pts: number[][]): SvgNode =>
 const circle = (cx: number, cy: number, r: number, filled = false): SvgNode =>
   el('circle', { cx, cy, r, fill: filled ? 'currentColor' : 'none' });
 
-/** Small arrowhead pointing along (dx,dy) with tip at (x,y). */
+/** Open-V arrowhead pointing along (dx,dy) with tip at (x,y). */
 function arrow(x: number, y: number, dx: number, dy: number): SvgNode {
-  const s = 5;
+  const s = 6;
   const px = -dy;
   const py = dx;
   return polyline([
-    [x - dx * s + px * s * 0.7, y - dy * s + py * s * 0.7],
+    [x - dx * s + px * s * 0.65, y - dy * s + py * s * 0.65],
     [x, y],
-    [x - dx * s - px * s * 0.7, y - dy * s - py * s * 0.7],
+    [x - dx * s - px * s * 0.65, y - dy * s - py * s * 0.65],
   ]);
 }
 
-/** Charge indicator: lead line into a 3-peak resistor zigzag, short tail. */
+/** Charge indicator: short lead into a sharp 4-peak resistor zigzag, short tail. */
 function charge(): SvgNode[] {
   return [
     polyline([
       [0, 0],
-      [10, 0],
-      [14, -10],
-      [20, 10],
-      [26, -10],
-      [32, 10],
-      [38, -10],
-      [42, 0],
-      [54, 0],
+      [8, 0],
+      [11, -9],
+      [17, 9],
+      [23, -9],
+      [29, 9],
+      [35, -9],
+      [38, 0],
+      [50, 0],
     ]),
   ];
 }
 
-/** Ground indicator: cup opening back toward the node, then two nested bars. */
+/**
+ * Ground indicator (book plates): a tall flat bar across the lead, then a
+ * bracket whose legs point away from the node, with a small tick nested
+ * between the legs.
+ */
 function ground(): SvgNode[] {
   return [
+    line(2, -15, 2, 15),
     polyline([
-      [2, -14],
-      [8, -14],
-      [8, 14],
-      [2, 14],
+      [22, -11],
+      [10, -11],
+      [10, 11],
+      [22, 11],
     ]),
-    polyline([
-      [18, -10],
-      [14, -10],
-      [14, 10],
-      [18, 10],
-    ]),
-    line(20, -5, 20, 5),
+    line(19, -5, 19, 5),
   ];
 }
 
@@ -79,135 +78,164 @@ function nullModifier(): SvgNode[] {
 
 /** Article "the": vertical bar inside the charge node circle. */
 function articleThe(): SvgNode[] {
-  return [line(0, -8, 0, 8)];
+  return [line(0, -9, 0, 9)];
 }
 
 /** Article "a": plus inside the charge node circle. */
 function articleA(): SvgNode[] {
-  return [line(-8, 0, 8, 0), line(0, -8, 0, 8)];
+  return [line(-9, 0, 9, 0), line(0, -9, 0, 9)];
 }
 
-/* ---- punctuation (keyed plate 08-58.2) ---- */
+/* ---- punctuation (keyed plate 08-58.2), affixed on the ground axis ---- */
 
-/** Period: filled dot with a short lead. */
+/** Period: bar then a filled dot. */
 function period(): SvgNode[] {
-  return [line(0, 0, 8, 0), circle(14, 0, 4.5, true)];
+  return [line(2, -12, 2, 12), line(2, 0, 10, 0), circle(17, 0, 6.5, true)];
 }
 
-/** Exclamation: open triangle pressed against a bar. */
+/** Exclamation: bar with an open triangle whose apex touches it. */
 function exclaim(): SvgNode[] {
-  return [line(0, 0, 6, 0), polyline([[18, -7], [6, 0], [18, 7], [18, -7]]), line(22, -8, 22, 8)];
+  return [line(2, -12, 2, 12), polyline([[2, 0], [16, -8], [16, 8], [2, 0]])];
 }
 
-/** Question: a hook curling back. */
+/** Question: bar, short lead, then a hook curling back down. No arrowhead. */
 function question(): SvgNode[] {
   return [
-    line(0, 0, 6, 0),
-    el('path', { d: 'M6 0 A 8 8 0 1 1 20 6', fill: 'none' }),
-    arrow(20, 6, 0.4, 0.9),
+    line(2, -12, 2, 12),
+    line(2, 0, 8, 0),
+    el('path', { d: 'M8 0 A 7.5 7.5 0 1 1 21 5', fill: 'none' }),
   ];
 }
 
-/** Comma: two short bars dividing a connector trace. */
+/** Comma: two tall bars dividing a connector trace. */
 function comma(): SvgNode[] {
-  return [line(-3, -9, -3, 9), line(3, -9, 3, 9)];
+  return [line(-4, -12, -4, 12), line(4, -12, 4, 12)];
 }
 
-/** Coupler: a stack of solder bars of arbitrary lengths (authored upright). */
+/**
+ * Coupler: a tall ragged stack of thick solder bars (book plates show ~25
+ * bars of arbitrary length, ragged on both edges, loosely clustered).
+ * Authored upright with the attach edge at x=0.
+ */
 function coupler(): SvgNode[] {
-  const lengths = [22, 30, 16, 26, 34, 18, 28, 12, 24, 32, 20, 14];
-  return lengths.map((w, i) => {
-    const y = i * 7 - (lengths.length - 1) * 3.5;
-    return el('line', { x1: -w, y1: y, x2: 0, y2: y, 'stroke-width': STROKE * 1.6 });
-  });
+  const bars: [number, number][] = [
+    // [width, right-edge offset]
+    [34, -10], [46, -10], [28, -10], [40, -10], [52, -10], [30, -10],
+    [58, 0], [36, 0], [48, 0], [26, 0], [54, 0], [42, 0], [32, 0],
+    [44, -14], [24, -14], [50, -14], [38, -14], [28, -14],
+    [56, -4], [34, -4], [46, -4], [26, -4], [52, -4], [38, -4],
+  ];
+  const step = 11;
+  const y0 = -((bars.length - 1) * step) / 2;
+  return bars.map(([w, off], i) =>
+    el('line', {
+      x1: off - w,
+      y1: y0 + i * step,
+      x2: off,
+      y2: y0 + i * step,
+      'stroke-width': STROKE * 2.4,
+    }),
+  );
 }
 
 /* ---- lexicon (plate 08-55), centered on the origin ---- */
 
+/** And: two small inputs joined through elbow leads into one node, output east. */
 function and(): SvgNode[] {
   return [
-    circle(-22, -12, 4),
-    circle(-22, 12, 4),
-    line(-18.5, -10, -7, -3),
-    line(-18.5, 10, -7, 3),
-    circle(0, 0, 8),
-    line(8, 0, 18, 0),
+    circle(-31, -17, 4.5),
+    polyline([[-26.5, -17], [-17, -17], [-7.2, -7.2]]),
+    circle(-31, 17, 4.5),
+    polyline([[-26.5, 17], [-17, 17], [-7.2, 7.2]]),
+    circle(0, 0, 10),
+    line(10, 0, 23, 0),
   ];
 }
 
+/** Or: like And, but the lower contact is open (broken before the node). */
 function or(): SvgNode[] {
   return [
-    circle(-22, -12, 4),
-    circle(-22, 12, 4),
-    line(-18.5, -9, -7, 4),
-    line(-18.5, 9, -7, -4),
-    circle(0, 0, 8),
-    line(8, 0, 18, 0),
+    circle(-31, -17, 4.5),
+    polyline([[-26.5, -17], [-17, -17], [-7.2, -7.2]]),
+    circle(-31, 17, 4.5),
+    line(-26.5, 17, -20, 17),
+    line(-14, 12.5, -7.2, 7.2),
+    circle(0, 0, 10),
+    line(10, 0, 23, 0),
   ];
 }
 
+/** True/Is: two nodes joined by two parallel bars. */
 function trueIs(): SvgNode[] {
-  return [circle(-14, 0, 6), line(-8, -2.5, 8, -2.5), line(-8, 2.5, 8, 2.5), circle(14, 0, 6)];
+  return [circle(-18, 0, 8), line(-10, -4, 10, -4), line(-10, 4, 10, 4), circle(18, 0, 8)];
 }
 
+/** False/Not: two nodes joined by one bar, struck through. */
 function falseNot(): SvgNode[] {
-  return [circle(-14, 0, 6), line(-8, 0, 8, 0), line(-2, 8, 4, -9), circle(14, 0, 6)];
+  return [circle(-18, 0, 8), line(-10, 0, 10, 0), line(-4, 10, 7, -11), circle(18, 0, 8)];
 }
 
 function because(): SvgNode[] {
-  return [circle(-16, 0, 4.5, true), line(-11.5, 0, 2, 0), arrow(2, 0, 1, 0), circle(10, 0, 7)];
+  return [circle(-22, 0, 5, true), line(-17, 0, 0, 0), arrow(0, 0, 1, 0), circle(9, 0, 9)];
 }
 
 function so(): SvgNode[] {
-  return [circle(-10, 0, 7), line(-3, 0, 9, 0), arrow(9, 0, 1, 0), circle(16, 0, 4.5, true)];
+  return [circle(-9, 0, 9), line(0, 0, 17, 0), arrow(17, 0, 1, 0), circle(22, 0, 5, true)];
 }
 
 function ifSym(): SvgNode[] {
-  return [circle(-8, 0, 7), line(-1, 0, 14, 0), arrow(14, 0, 1, 0)];
+  return [circle(-6, 0, 9), line(3, 0, 18, 0), arrow(18, 0, 1, 0)];
 }
 
 function ifThen(): SvgNode[] {
-  return [line(-22, 0, -8, 0), arrow(-8, 0, 1, 0), circle(0, 0, 7), line(7, 0, 22, 0), arrow(22, 0, 1, 0)];
+  return [line(-26, 0, -11, 0), arrow(-11, 0, 1, 0), circle(0, 0, 9), line(9, 0, 26, 0), arrow(26, 0, 1, 0)];
 }
 
+/** There-is: node with four splayed legs ending in horizontal caps. */
 function thereIs(): SvgNode[] {
   return [
-    circle(0, 0, 8),
-    line(-5.7, -5.7, -13, -13),
-    line(5.7, -5.7, 13, -13),
-    line(-5.7, 5.7, -13, 13),
-    line(5.7, 5.7, 13, 13),
+    circle(0, 0, 9),
+    polyline([[-26, -16], [-16, -16], [-6.4, -6.4]]),
+    polyline([[26, -16], [16, -16], [6.4, -6.4]]),
+    polyline([[-26, 16], [-16, 16], [-6.4, 6.4]]),
+    polyline([[26, 16], [16, 16], [6.4, 6.4]]),
   ];
 }
 
+/** Unique: node standing on two splayed legs with horizontal feet. */
 function unique(): SvgNode[] {
-  return [circle(0, -3, 8), line(-4, 4, -7, 13), line(4, 4, 7, 13)];
+  return [
+    circle(0, -4, 9),
+    polyline([[-24, 10], [-13, 10], [-6.4, 2.4]]),
+    polyline([[24, 10], [13, 10], [6.4, 2.4]]),
+  ];
 }
 
+/** From-to: two near-node-sized circles joined by a sharp pulse spike. */
 function fromTo(): SvgNode[] {
   return [
-    circle(-21, 0, 5),
+    circle(-27, 0, 9.5),
     polyline([
-      [-16, 0],
-      [-9, 0],
-      [-6, -9],
-      [-1, 9],
-      [3, -9],
-      [7, 0],
-      [16, 0],
+      [-17.5, 0],
+      [-8, 0],
+      [-4.5, -12],
+      [0.5, 13],
+      [3.5, -7],
+      [5.5, 0],
+      [17.5, 0],
     ]),
-    circle(21, 0, 5),
+    circle(27, 0, 9.5),
   ];
 }
 
 function pronoun(arrows: { dy: -1 | 1; n: 1 | 2 }, dotted = false): () => SvgNode[] {
   return () => {
-    const parts: SvgNode[] = [circle(0, 0, 7)];
-    if (dotted) parts.push(circle(0, 0, 2, true));
+    const parts: SvgNode[] = [circle(0, 0, 9)];
+    if (dotted) parts.push(circle(0, 0, 3, true));
     for (let i = 0; i < arrows.n; i++) {
-      const x = arrows.n === 1 ? 0 : i === 0 ? -4 : 4;
-      const y0 = arrows.dy * 7;
-      const y1 = arrows.dy * 17;
+      const x = arrows.n === 1 ? 0 : i === 0 ? -5 : 5;
+      const y0 = arrows.dy * 9;
+      const y1 = arrows.dy * 23;
       parts.push(line(x, y0, x, y1));
       parts.push(arrow(x, y1, 0, arrows.dy));
     }
@@ -217,12 +245,12 @@ function pronoun(arrows: { dy: -1 | 1; n: 1 | 2 }, dotted = false): () => SvgNod
 
 function pronounSide(n: 1 | 2, dotted = false): () => SvgNode[] {
   return () => {
-    const parts: SvgNode[] = [circle(0, 0, 7)];
-    if (dotted) parts.push(circle(0, 0, 2, true));
+    const parts: SvgNode[] = [circle(0, 0, 9)];
+    if (dotted) parts.push(circle(0, 0, 3, true));
     for (let i = 0; i < n; i++) {
-      const y = n === 1 ? 0 : i === 0 ? -4 : 4;
-      parts.push(line(7, y, 17, y));
-      parts.push(arrow(17, y, 1, 0));
+      const y = n === 1 ? 0 : i === 0 ? -5 : 5;
+      parts.push(line(9, y, 23, y));
+      parts.push(arrow(23, y, 1, 0));
     }
     return parts;
   };
@@ -269,16 +297,21 @@ export function lexiconHalfWidth(kind: SymbolKind): number {
   switch (kind) {
     case 'and':
     case 'or':
+      return 38;
     case 'fromTo':
+      return 39;
     case 'ifThen':
-      return 28;
+      return 30;
     case 'true':
     case 'false':
-      return 22;
+    case 'thereIs':
+      return 28;
     case 'because':
     case 'so':
-      return 22;
+      return 30;
+    case 'unique':
+      return 26;
     default:
-      return 18;
+      return 25;
   }
 }

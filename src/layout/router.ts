@@ -21,7 +21,7 @@ const CHARGE_STUB_LEN = 12;
 const CHARGE_SYMBOL_LEN = 56;
 const GROUND_LEAD = 16;
 const GROUND_TAIL = 8;
-const GROUND_SYMBOL_LEN = 22;
+const GROUND_SYMBOL_LEN = 26;
 
 /**
  * Bundle router, modeled on the campaign frame plates:
@@ -262,10 +262,11 @@ export function routeWord(c: WordCircuit): WordGeometry {
   symbols.push({ kind: 'ground', at: gEnd, rotation: groundAz * 45 });
   if (c.ground.punctuation) {
     const kind = c.ground.punctuation === '.' ? 'period' : c.ground.punctuation === '!' ? 'exclaim' : 'question';
+    // Punctuation rides the ground axis, just past the ground bars (plate 08-58.2).
     symbols.push({
       kind,
-      at: add(gEnd, scale(azimuthDir(((groundAz + 6) % 8) as Azimuth), 18)),
-      rotation: 0,
+      at: add(gEnd, scale(groundDir, GROUND_SYMBOL_LEN + 2)),
+      rotation: groundAz * 45,
     });
   }
 

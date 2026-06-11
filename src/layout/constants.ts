@@ -15,8 +15,8 @@ export const LANE = 9;
 /** Stroke width for traces and circles. */
 export const STROKE = 2.5;
 /** Subnode dot radius. */
-export const DOT_R = 3.75;
-/** Arc-length spacing between dots within a group. */
-export const DOT_SPACING = 10;
+export const DOT_R = 4;
+/** Arc-length spacing between dots within a group (book beads nearly touch). */
+export const DOT_SPACING = 9.5;
 /** Arc-length gap between consecutive dot groups. */
 export const GROUP_GAP = 14;
